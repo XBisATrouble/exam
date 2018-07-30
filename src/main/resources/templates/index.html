@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="/css/bootstrap.css"/>
+    <link rel="stylesheet" href="/css/style.css"/>
+    <title>Hello, world!</title>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <h1>试题列表</h1>
+        </div>
+    </div>
+    <div class="clearfix" style="margin-bottom: 20px;"></div><!-- 清除浮动 -->
+    <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-2">
+            <form class="form-inline" id="searchForm">
+                <div class="form-group">
+                    <div class="col-md-10" id="app-6">
+                        <input type="text" class="form-control" id="exampleInputName2" placeholder="请输入关键词" name="keywords">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="clearfix" style="margin-bottom: 20px;"></div><!-- 清除浮动 -->
+    <div class="row">
+        <div class="col-md-2">
+        </div>
+        <div class="col-md-8" id="main">
+            <table class="table table-striped">
+                <tr>
+                    <th class="list">编号</th>
+                    <th class="list">内容</th>
+                    <th class="list">选项A</th>
+                    <th class="list">选项B</th>
+                    <th class="list">选项C</th>
+                    <th class="list">选项D</th>
+                    <th class="list">题型</th>
+                    <th class="list">答案</th>
+                </tr>
+                <tr v-for="r in rows">
+                    <th class="list">{{r.questionId}}</th>
+                    <th class="list">{{r.questionContent}}</th>
+                    <th class="list">{{r.answerA}}</th>
+                    <th class="list">{{r.answerB}}</th>
+                    <th class="list">{{r.answerC}}</th>
+                    <th class="list">{{r.answerD}}</th>
+                    <th class="list">{{r.subjectName}}</th>
+                    <th class="list">{{r.answer}}</th>
+                </tr>
+            </table>
+        </div>
+        <div class="col-md-2">
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-2">
+        </div>
+        <div class="col-md-8">
+        <ul class="pagination" id="pagination">
+        </ul>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8 alert alert-warning" id="warning"></div>
+    </div>
+</div>
+
+<script src="/js/jquery.min.js"></script>
+<script src="/js/bootstrap.js"></script>
+<script src="js/vue.min.js"></script>
+<script type="application/javascript">
+
+    let v = new Vue({
+        el: '#main',
+        data: {
+            rows: []
+        }
+    });
+
+    $(document).ready(function () {
+        let warning = document.getElementById("warning")
+        warning.style.display = "none"
+        $.getJSON("/api/questions", function (result, status) {
+            v.$data.rows = result['data']
+            // let pages = result['pagination']['pages']
+            // let page = result['pagination']['page']
+            // for (var i=1;i<pages+1;i++) {
+            //     if (i === page) {
+            //         $(".pagination").append("<li class=\"active\"><a href=\"#\">"+i+"</a></li>")
+            //     }else{
+            //         $(".pagination").append("<li><a href=\"index/2\">"+i+"</a></li>")
+            //     }
+            // }
+        });
+    });
+
+    $("input").keyup(function(){
+        let keywords=$("input").val()
+        $.post("/api/questions/search",{keywords:keywords},function(result){
+            if (result['code']!==200){
+                warning.style.display = ""
+                warning.innerHTML = result['msg']
+            }else{
+                warning.style.display = "none"
+            }
+            v.$data.rows = result['data']
+        });
+    });
+</script>
+</body>
+</html>
